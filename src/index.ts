@@ -1,7 +1,8 @@
 import express from "express";
 import { UsersController } from "./resources/users/controllers";
+import { ContentsControllers } from "./resources/contents/controllers";
 
-async function bootstrap(){
+async function bootstrap() {
   console.log(`[+] starting...`);
 
   const app = express();
@@ -9,6 +10,7 @@ async function bootstrap(){
 
 
   app.use('/api/users', new UsersController().getRouter());
+  app.use("/api/contents", new ContentsControllers().getRouter());
   app.listen(3000, async () => {
     console.log('[+] listening on port 3000');
   });
