@@ -31,9 +31,20 @@ model Invite {
 
 model Post {
   id        Int      @id @default(autoincrement())
+  email     String
+  slug      String
   filePath  String   // Points to the file in the filesystem
   caption   String?
   tags      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserSession {
+  id        Int      @id @default(autoincrement())
+  email     String
+  token String   @unique
+  sessionValidity DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

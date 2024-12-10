@@ -10,6 +10,19 @@ export class UsersController {
     this.initializeRoutes();
   }
 
+
+  private login = async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const { user, userSession } = await this.userService.login(email, password);
+      res.status(201).json({ user, userSession });
+      return;
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+  }
+
   private registration = async (req: Request, res: Response) => {
     try {
       const { email, password, inviteCode } = req.body;
@@ -25,7 +38,7 @@ export class UsersController {
   private createInvites = async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
-      const user = await this.userService.login(
+      const { user } = await this.userService.login(
         email, password
       )
       if (!user) {
@@ -45,6 +58,7 @@ export class UsersController {
 
   private initializeRoutes(): void {
     this.router.post("/registration", this.registration);
+    this.router.post("/login", this.login);
     this.router.post("/create-invite", this.createInvites);
   }
 

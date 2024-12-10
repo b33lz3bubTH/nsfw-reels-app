@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaSingleton } from "../../dbpool/singleton";
 import { InvitesService } from "./invites/service";
+import { randomUUID } from "crypto";
 
 export enum AccountType {
   viewer = "viewer",
@@ -17,6 +18,11 @@ export class UserService {
   async registration(email: string, password: string, inviteCode: string) {
     const invite = await this.inviteService.validateInvite(inviteCode);
     console.log(`invite code: `, invite.code, " expires at: ", invite.expiresAt);
+
+    if (invite.expiresAt < new Date()) {
+      throw new Error("invite expired");
+    }
+
     const newUser = await this.prisma.user.create({
       data: {
         email,
@@ -26,18 +32,50 @@ export class UserService {
     });
     return newUser;
   }
+
+
   async login(email: string, password: string) {
-    return this.prisma.user.findUnique({ where: { email, password } });
+    const user = await this.prisma.user.findUnique({ where: { email, password } });
+    if (!user) {
+      throw new Error(`invalid credentials`);
+    }
+
+    const uniqueCode: string = randomUUID().toString();
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 60 * 1000);
+
+    const userSession = await this.prisma.userSession.create({
+      data: {
+        email: user.email,
+        sessionValidity: expiresAt,
+        token: uniqueCode
+      }
+    });
+
+    return {
+      user,
+      userSession
+    }
   }
 
-  async createInitUploader() {
-    const newUploader = await this.prisma.user.create({
-      data: {
-        email: "sourav@default.com",
-        password: "abcd_-_1000",
-        accountType: AccountType.uploader
+  async userViaSession(token: string) {
+    const userSession = await this.prisma.userSession.findFirst({
+      where: {
+        token
       }
-    })
-    return newUploader;
+    });
+
+    if (!userSession) {
+      throw new Error(`invalid session`);
+    }
+
+    if (userSession.sessionValidity < new Date()) {
+      throw new Error(`session expired`);
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { email: userSession.email } });
+    return user;
   }
+
+
 }

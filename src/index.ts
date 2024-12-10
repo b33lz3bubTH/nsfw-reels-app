@@ -4,8 +4,9 @@ import { ContentsControllers } from "./resources/contents/controllers";
 
 async function bootstrap() {
   console.log(`[+] starting...`);
-
   const app = express();
+
+  app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
 
 
