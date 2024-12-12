@@ -11,9 +11,9 @@ export class WSServer {
   }
 
   // Initialize WebSocket server on the provided HTTP server
-  public initialize(server: HttpServer) {
-    this.namespaces.forEach((_namespace) => {
-      _namespace?.initialize(server);
+  public async initialize(server: HttpServer) {
+    this.namespaces.forEach(async (_namespace) => {
+      await _namespace?.initialize(server);
     });
   }
 }

@@ -5,6 +5,7 @@ import { WebSocket } from "ws";
 import { Commands, appCommandConfigs } from "../../plugins/command-parser/app-commands";
 import { CommandParser } from "../../plugins/command-parser/manager";
 import { ContentService } from "./services";
+import { UserService } from "../users/service";
 
 
 export class ContentsWSNamespace extends WSSNamespace {
@@ -12,8 +13,18 @@ export class ContentsWSNamespace extends WSSNamespace {
   static connections: Array<WebSocket> = [];
   private command_parser = new CommandParser(appCommandConfigs);
 
-  constructor(public contentService = new ContentService()) {
+  constructor(public contentService = new ContentService(), public userService = new UserService()) {
     super();
+  }
+
+  async validateToken(token: string): Promise<boolean> {
+    try {
+      console.log(`[+] Validating token: ${token}`);
+      const user = await this.userService.userViaSession(token);
+      return !!user;
+    } catch (error: any) {
+      return false;
+    }
   }
 
   public onConnection(socket: WebSocket): void {
