@@ -6,6 +6,7 @@ import { Commands, appCommandConfigs } from "../../plugins/command-parser/app-co
 import { CommandParser } from "../../plugins/command-parser/manager";
 import { ContentService } from "./services";
 
+
 export class ContentsWSNamespace extends WSSNamespace {
   public _namespace = "/ws/consume/content";
   static connections: Array<WebSocket> = [];
@@ -23,17 +24,13 @@ export class ContentsWSNamespace extends WSSNamespace {
       console.log(`[+] Message in ${this._namespace}: ${message}`);
       const command = this.command_parser.parse(message.toString());
 
-      if (command.command === Commands.consume_media) {
-      }
-
-      if(command.command == Commands.consume_list){
-        const {take , skip} = command as any;
+      if (command.command == Commands.consume_list) {
+        const { take, skip } = command as any;
         console.log(`[+] take: ${take}, skip: ${skip}`);
         const posts = await this.contentService.consumePostsPagination(take, skip);
         socket.send(JSON.stringify(posts));
       }
-      
-      
+
     });
 
     socket.on("close", () => {
