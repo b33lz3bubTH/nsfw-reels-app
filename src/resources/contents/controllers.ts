@@ -3,6 +3,7 @@ import UploadService, { ContentAdapter } from "../../plugins/lfs-service";
 import { UserService, AccountType } from "../users/service";
 import { ContentService } from "./services";
 import { randomUUID } from "crypto";
+import { ContentEvent, EventNames } from "../../events-emitters";
 
 
 export class ContentsControllers {
@@ -36,7 +37,6 @@ export class ContentsControllers {
         throw new Error("user is not an uploader");
       }
 
-
       const post = await this.contentService.createPost({
         filePath,
         slug: randomUUID().toString(),
@@ -45,7 +45,7 @@ export class ContentsControllers {
         email: user.email
       });
 
-
+      ContentEvent.emit(EventNames.content_uploaded, JSON.stringify(post));
       res.status(201).json({ filePath, content: post.slug });
     } catch (error) {
       res.status(500).json({ message: (error as Error).message });
