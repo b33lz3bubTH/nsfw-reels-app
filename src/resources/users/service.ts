@@ -17,7 +17,6 @@ export class UserService {
 
   async registration(email: string, password: string, inviteCode: string) {
     const invite = await this.inviteService.validateInvite(inviteCode);
-    console.log(`invite code: `, invite.code, " expires at: ", invite.expiresAt);
 
     if (invite.expiresAt < new Date()) {
       throw new Error("invite expired");
