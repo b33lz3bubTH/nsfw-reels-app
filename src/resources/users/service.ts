@@ -15,6 +15,18 @@ export class UserService {
 
   }
 
+  async upgradeToUploader(email: string){
+    const user = await this.prisma.user.update({
+      where: {
+        email: email
+      },
+      data: {
+        accountType: AccountType.uploader
+      }
+    });
+    return user;
+  }
+
   async registration(email: string, password: string, inviteCode: string) {
     const invite = await this.inviteService.validateInvite(inviteCode);
 

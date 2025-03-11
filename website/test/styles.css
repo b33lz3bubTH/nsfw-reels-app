@@ -1,0 +1,15 @@
+#videoElement {
+  width: 100%;
+  max-width: 800px;  /* Ensures it doesn’t get too large */
+  height: auto;  /* Maintains aspect ratio */
+  display: block;
+  margin: 0 auto;  /* Centers the video */
+  border-radius: 8px; /* Slightly rounded corners */
+}
+
+/* Mobile Optimization */
+@media (max-width: 600px) {
+  #videoElement {
+    max-width: 90vw; /* Slightly smaller width on mobile */
+  }
+}

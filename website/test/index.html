@@ -1,57 +1,20 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebSocket Video Streaming</title>
+  <title>WebSocket Video Player</title>
+  <link rel="s"tylesheet" href="./styles.css" />
+  <script src="./script.js" defer></script>
 </head>
 <body>
-  <video id="videoElement" controls width="800"></video>
-  <script>
-    const videoElement = document.getElementById('videoElement');
-    const socket = new WebSocket(`ws://localhost:3000/ws/consume/content`);
-
-    let mediaSource = new MediaSource();
-    let sourceBuffer;
-    let videoBuffer = [];
-
-    videoElement.src = URL.createObjectURL(mediaSource);
-
-    // When the MediaSource is open, set up the source buffer
-    mediaSource.addEventListener('sourceopen', () => {
-      sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.64001F, mp4a.40.2"');
-      console.log('MediaSource open and SourceBuffer created');
-    });
-
-    // Handle WebSocket message
-    socket.onmessage = (event) => {
-      if (event.data === 'END') {
-        console.log('Video stream ended');
-        socket.close(); // Close WebSocket connection
-      } else if (event.data === 'ERROR') {
-        console.error('Error streaming video');
-      } else {
-        // Add the received chunk to the buffer
-        videoBuffer.push(event.data);
-        if (!sourceBuffer.updating) {
-          sourceBuffer.appendBuffer(videoBuffer.shift());
-        }
-      }
-    };
-
-    socket.onopen = () => {
-      console.log('WebSocket connection established');
-      socket.send("/consume media 2161518b-d240-425d-8ea9-e249c06696e4")
-    };
-
-    socket.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
-    socket.onerror = (error) => {
-      console.error('WebSocket Error:', error);
-    };
-  </script>
+    <div style="width: 100%">
+  <video id="videoElement" controls style="width: 100%; max-width: 800px;"></video>
+    </div>
+  <p id="videoCaption">Caption: </p>
+  <p id="videoTags">Tags: </p>
+  <br>
+  <button id="prevBtn">Previous Video</button>
+  <button id="nextBtn">Next Video</button>
 </body>
 </html>

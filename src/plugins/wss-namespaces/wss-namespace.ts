@@ -39,6 +39,7 @@ export abstract class WSSNamespace {
         const wsServer = new WebSocketServer({ noServer: true });
         wsServer.handleUpgrade(req, socket, head, (ws) => {
           wsServer.emit("connection", ws, req);
+          this.onConnection(ws);
         });
 
       } catch (error: any) {

@@ -1,3 +1,4 @@
+import { config } from "../../config";
 import { InvitesService } from "./invites/service";
 import { UserService, AccountType } from "./service";
 import { Request, Response, Router } from "express";
@@ -15,7 +16,13 @@ export class UsersController {
     try {
       const { email, password } = req.body;
       const { user, userSession } = await this.userService.login(email, password);
-      res.status(201).json({ user, userSession });
+      const sessionData = {
+        email: user.email,
+        sessionValidity: userSession.sessionValidity,
+        token: userSession.token,
+        role: user.accountType
+      }
+      res.status(201).json(sessionData);
       return;
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -27,7 +34,7 @@ export class UsersController {
     try {
       const { email, password, inviteCode } = req.body;
       const user = await this.userService.registration(email, password, inviteCode);
-      res.status(201).json(user);
+      res.status(201).json({email, accountType: user.accountType});
       return;
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -56,8 +63,29 @@ export class UsersController {
     }
   }
 
+  private upgradeUserRole = async (req: Request, res: Response) => {
+    try {
+      const { email, password, aesKey } = req.body;
+      if (aesKey !== config.AES256KEY) {
+        throw new Error("invalid key");
+      }
+      const user = await this.userService.login(email, password);
+      if (!user) {
+        throw new Error("user not found");
+      }
+      await this.userService.upgradeToUploader(email);
+
+      res.status(201).json({ message: "upgraded to uploader" });
+      return;
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+  }
+
   private initializeRoutes(): void {
     this.router.post("/registration", this.registration);
+    this.router.post("/upgrade", this.upgradeUserRole);
     this.router.post("/login", this.login);
     this.router.post("/create-invite", this.createInvites);
   }
