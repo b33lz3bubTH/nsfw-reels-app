@@ -8,3 +8,8 @@
 4. content is primarily video, but pics are also allowed
 5. content can vary from nsfw to sfw
 6. emojies can be given to a content as a like [fixed emojies]
+
+
+# Frontend
+================================
+either reactnative or lynxjs
